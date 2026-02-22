@@ -1030,56 +1030,41 @@
     // 页面加载时初始化
     window.addEventListener('DOMContentLoaded', initPage);
     
-    // 为下载按钮添加事件委托（对动态内容更健壮）
+    // 为每个下载按钮添加点击事件
     document.addEventListener('click', function(e) {
-      const button = e.target.closest('.download-buttons .btn');
-      if (!button) return;
-      
-      // 检查是否是"所有工具"按钮，如果是则不阻止默认行为
-      if (button.getAttribute('href') === 'https://all.calipertools.com') {
-        return; // 直接返回，不阻止默认行为
-      }
-      
-      // 阻止默认行为，防止页面跳转
-      e.preventDefault();
-      
-      // 获取当前平台
-      const platform = button.getAttribute('data-platform');
-      
-      // 查找对应的功能数据
-      const slug = `adobe-substance-3d-painter-${platform}`;
-      const feature = featureData[slug];
-      
-      if (feature) {
-        // 更新页面URL但不刷新页面
-        const newUrl = `/${slug}`;
-        history.pushState({ slug }, feature.title, newUrl);
+      // 检查是否是下载按钮（不是"所有工具"按钮）
+      const button = e.target.closest('.download-buttons .btn:not([href="https://all.calipertools.com"])');
+      if (button) {
+        e.preventDefault();
         
-        // 更新页面标题和描述
-        updatePageInfo(feature);
+        // 获取当前平台
+        const platform = button.getAttribute('data-platform');
         
-        // 高亮对应的下载按钮
-        const allButtons = document.querySelectorAll('.download-buttons .btn');
-        allButtons.forEach(btn => {
-          btn.classList.remove('btn-blue');
-          btn.classList.add('btn-outline');
-        });
-        button.classList.remove('btn-outline');
-        button.classList.add('btn-blue');
+        // 查找对应的功能数据
+        const slug = `adobe-substance-3d-painter-${platform}`;
+        const feature = featureData[slug];
         
-        // 计算链接数量
-        const linkCount = Object.keys(feature.links).length;
-        
-        if (linkCount === 1) {
-          // 只有一个链接，在新窗口打开
-          const firstLink = Object.values(feature.links)[0];
+        if (feature) {
+          // 高亮对应的下载按钮
+          document.querySelectorAll('.download-buttons .btn').forEach(btn => {
+            btn.classList.remove('btn-blue');
+            btn.classList.add('btn-outline');
+          });
+          button.classList.remove('btn-outline');
+          button.classList.add('btn-blue');
           
-          // 在新窗口打开链接
-          window.open(firstLink, '_blank', 'noopener,noreferrer');
-        } else {
-          // 多个链接，生成选项并显示模态框
-          generateDownloadOptions(feature);
-          downloadModal.style.display = 'block';
+          // 计算链接数量
+          const linkCount = Object.keys(feature.links).length;
+          
+          if (linkCount === 1) {
+            // 只有一个链接，在新窗口打开
+            const firstLink = Object.values(feature.links)[0];
+            window.open(firstLink, '_blank', 'noopener,noreferrer');
+          } else {
+            // 多个链接，生成选项并显示模态框
+            generateDownloadOptions(feature);
+            downloadModal.style.display = 'block';
+          }
         }
       }
     });

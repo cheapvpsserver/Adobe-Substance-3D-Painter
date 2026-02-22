@@ -1029,54 +1029,39 @@
     
     // Add event delegation for download buttons (more robust for dynamic content)
     document.addEventListener('click', function(e) {
-      const button = e.target.closest('.download-buttons .btn');
-      if (!button) return;
-      
-      // Check if it's the "All Tools" button, if so do not prevent default behavior
-      if (button.getAttribute('href') === 'https://all.calipertools.com') {
-        return; // Directly return, do not prevent default behavior
-      }
-      
-      // Prevent default behavior, prevent page jump
-      e.preventDefault();
-      
-      // Get current platform
-      const platform = button.getAttribute('data-platform');
-      
-      // Find corresponding feature data
-      const slug = `adobe-substance-3d-painter-${platform}`;
-      const feature = featureData[slug];
-      
-      if (feature) {
-        // Update page URL without refreshing page
-        const newUrl = `/en/${slug}`;
-        history.pushState({ slug }, feature.title, newUrl);
+      // Check if it's a download button (not "All Tools" button)
+      const button = e.target.closest('.download-buttons .btn:not([href="https://all.calipertools.com"])');
+      if (button) {
+        e.preventDefault();
         
-        // Update page title and description
-        updatePageInfo(feature);
+        // Get current platform
+        const platform = button.getAttribute('data-platform');
         
-        // Highlight corresponding download button
-        const allButtons = document.querySelectorAll('.download-buttons .btn');
-        allButtons.forEach(btn => {
-          btn.classList.remove('btn-blue');
-          btn.classList.add('btn-outline');
-        });
-        button.classList.remove('btn-outline');
-        button.classList.add('btn-blue');
+        // Find corresponding feature data
+        const slug = `adobe-substance-3d-painter-${platform}`;
+        const feature = featureData[slug];
         
-        // Calculate link count
-        const linkCount = Object.keys(feature.links).length;
-        
-        if (linkCount === 1) {
-          // Only one link, open in new window
-          const firstLink = Object.values(feature.links)[0];
+        if (feature) {
+          // Highlight corresponding download button
+          document.querySelectorAll('.download-buttons .btn').forEach(btn => {
+            btn.classList.remove('btn-blue');
+            btn.classList.add('btn-outline');
+          });
+          button.classList.remove('btn-outline');
+          button.classList.add('btn-blue');
           
-          // Open link in new window
-          window.open(firstLink, '_blank', 'noopener,noreferrer');
-        } else {
-          // Multiple links, generate options and display modal
-          generateDownloadOptions(feature);
-          downloadModal.style.display = 'block';
+          // Calculate link count
+          const linkCount = Object.keys(feature.links).length;
+          
+          if (linkCount === 1) {
+            // Only one link, open in new window
+            const firstLink = Object.values(feature.links)[0];
+            window.open(firstLink, '_blank', 'noopener,noreferrer');
+          } else {
+            // Multiple links, generate options and display modal
+            generateDownloadOptions(feature);
+            downloadModal.style.display = 'block';
+          }
         }
       }
     });
